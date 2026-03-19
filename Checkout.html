@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RS — MGNUM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --white: #f5f5f0;
+    --gray: #1a1a1a;
+    --mid: #888;
+    --border: rgba(245,245,240,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    cursor: none;
+  }
+  #cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(245,245,240,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: width 0.3s, height 0.3s, opacity 0.3s;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(16px);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-right { display: flex; gap: 24px; align-items: center; }
+  .nav-user {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--mid);
+  }
+  .nav-out {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--mid);
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--mid);
+    padding: 8px 16px;
+    font-family: 'DM Mono', monospace;
+    cursor: none;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-out:hover { color: var(--white); border-color: rgba(245,245,240,0.3); }
+
+  .hero {
+    padding: 160px 48px 80px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 80px;
+    align-items: end;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block; width: 24px; height: 1px;
+    background: var(--mid);
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(100px, 16vw, 220px);
+    line-height: 0.85;
+    letter-spacing: -3px;
+    margin-bottom: 32px;
+  }
+  .hero-desc {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--mid);
+    max-width: 480px;
+  }
+  .purchase-card {
+    background: var(--gray);
+    border: 1px solid var(--border);
+    padding: 40px;
+    position: sticky;
+    top: 100px;
+    animation: fadeUp 0.6s 0.2s both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:none; }
+  }
+  .card-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .plan-option {
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: none;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .plan-option:hover { border-color: rgba(245,245,240,0.2); }
+  .plan-option.selected {
+    border-color: var(--white);
+    background: rgba(245,245,240,0.04);
+  }
+  .plan-left { display: flex; flex-direction: column; gap: 4px; }
+  .plan-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+  .plan-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--mid);
+  }
+  .plan-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  .plan-radio {
+    position: absolute;
+    top: 50%; right: 24px;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    border: 1px solid var(--mid);
+    border-radius: 50%;
+    transition: border-color 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .plan-option.selected .plan-radio {
+    border-color: var(--white);
+  }
+  .plan-option.selected .plan-radio::after {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--white);
+    border-radius: 50%;
+  }
+  .plan-option .plan-price { margin-right: 32px; }
+
+  .card-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+  .price-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .price-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--mid);
+  }
+  .price-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+
+  .btn-get {
+    width: 100%;
+    background: var(--white);
+    color: var(--black);
+    border: none;
+    padding: 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .btn-get:hover { background: #ddd; transform: translateY(-1px); }
+
+  .features {
+    padding: 80px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .features-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .features-label::before { content: ''; display: block; width: 32px; height: 1px; background: var(--mid); }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+  .feature-item {
+    background: var(--black);
+    padding: 36px;
+  }
+  .feature-icon {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  .feature-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .feature-desc {
+    font-size: 13px;
+    color: var(--mid);
+    line-height: 1.6;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    color: var(--mid);
+  }
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 1000px) {
+    .hero { grid-template-columns: 1fr; padding: 140px 24px 60px; }
+    .purchase-card { position: static; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .features { padding: 60px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 16px; padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">MGNUM</a>
+  <div class="nav-right">
+    <span class="nav-user" id="navUser"></span>
+    <button class="nav-out" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <p class="hero-eyebrow">Product — Free</p>
+    <h1 class="hero-title">RS</h1>
+    <p class="hero-desc">The flagship MGNUM product. Precision-crafted for those who operate at the edge. Claim your lifetime license today — absolutely free, no conditions, no expiry.</p>
+  </div>
+
+  <div class="purchase-card">
+    <p class="card-title">Select Plan</p>
+
+    <div class="plan-option selected" id="planLifetime" onclick="selectPlan('lifetime')">
+      <div class="plan-left">
+        <div class="plan-name">LIFETIME</div>
+        <div class="plan-sub">ONE TIME · FOREVER</div>
+      </div>
+      <div class="plan-price">FREE</div>
+      <div class="plan-radio"></div>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="price-row">
+      <span class="price-label">TOTAL</span>
+      <span class="price-val">$0.00</span>
+    </div>
+
+    <button class="btn-get" onclick="continueToPurchase()">Continue to Purchase</button>
+  </div>
+</section>
+
+<section class="features">
+  <p class="features-label">What's included</p>
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon">◈</div>
+      <div class="feature-name">LIFETIME ACCESS</div>
+      <div class="feature-desc">One claim, forever yours. No renewals, no subscriptions, no catches.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">◎</div>
+      <div class="feature-name">INSTANT DELIVERY</div>
+      <div class="feature-desc">Delivered directly to your account the moment you complete checkout.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">⬡</div>
+      <div class="feature-name">ALWAYS UPDATED</div>
+      <div class="feature-desc">All future updates included at no cost. Stay current, always.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">◇</div>
+      <div class="feature-name">PRIORITY SUPPORT</div>
+      <div class="feature-desc">Direct access to the MGNUM support team whenever you need it.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">△</div>
+      <div class="feature-name">COMMUNITY ACCESS</div>
+      <div class="feature-desc">Join the private MGNUM member community with your license.</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">◉</div>
+      <div class="feature-name">ZERO RESTRICTIONS</div>
+      <div class="feature-desc">No feature gates. Full product, full access, from day one.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">MGNUM</div>
+  <div class="footer-copy">© 2024 MGNUM. ALL RIGHTS RESERVED.</div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.style.width = '56px'; ring.style.height = '56px'; ring.style.opacity = '0.5'; });
+    el.addEventListener('mouseleave', () => { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.opacity = '1'; });
+  });
+
+  const session = JSON.parse(localStorage.getItem('mgnum_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+  else { document.getElementById('navUser').textContent = session.username.toUpperCase(); }
+
+  function selectPlan(plan) {
+    document.getElementById('planLifetime').classList.toggle('selected', plan === 'lifetime');
+  }
+
+  function logout() {
+    localStorage.removeItem('mgnum_session');
+    window.location.href = 'index.html';
+  }
+
+  function continueToPurchase() {
+    window.location.href = 'checkout.html';
+  }
+</script>
+</body>
+</html>
