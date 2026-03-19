@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MGNUM — Premium Resell</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --white: #f5f5f0;
+    --gray: #1a1a1a;
+    --mid: #888;
+    --accent: #f5f5f0;
+    --border: rgba(245,245,240,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  #cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(245,245,240,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s cubic-bezier(.16,1,.3,1), width 0.3s, height 0.3s, opacity 0.3s;
+    transform: translate(-50%, -50%);
+  }
+  body:hover #cursor { opacity: 1; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 48px;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s, background 0.4s, padding 0.4s;
+  }
+  nav.scrolled {
+    border-color: var(--border);
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(16px);
+    padding: 18px 48px;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a {
+    color: var(--mid);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-btn {
+    background: var(--white) !important;
+    color: var(--black) !important;
+    padding: 10px 24px;
+    font-size: 12px !important;
+    letter-spacing: 2px !important;
+    font-weight: 500 !important;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s, transform 0.2s !important;
+  }
+  .nav-btn:hover { background: #ddd !important; transform: translateY(-1px) !important; }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 50% at 80% 40%, rgba(255,255,255,0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 20% 70%, rgba(255,255,255,0.02) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 14vw, 200px);
+    line-height: 0.9;
+    letter-spacing: -2px;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.35s forwards;
+  }
+  .hero-title span { color: var(--mid); }
+  .hero-sub {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+  .hero-desc {
+    max-width: 360px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--mid);
+  }
+  .hero-cta {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .btn-primary {
+    background: var(--white);
+    color: var(--black);
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.25s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-primary:hover::after { transform: translateX(0); }
+  .btn-ghost {
+    color: var(--mid);
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    transition: color 0.2s, gap 0.2s;
+  }
+  .btn-ghost:hover { color: var(--white); gap: 12px; }
+  .btn-ghost::after { content: '→'; }
+
+  .marquee-wrap {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 0;
+    overflow: hidden;
+    background: var(--gray);
+  }
+  .marquee-track {
+    display: flex; gap: 60px;
+    animation: marquee 18s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--mid);
+    display: flex; align-items: center; gap: 60px;
+  }
+  .marquee-item::after { content: '◆'; font-size: 8px; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .section {
+    padding: 120px 48px;
+    border-top: 1px solid var(--border);
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 64px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::before {
+    content: '';
+    display: block; width: 32px; height: 1px;
+    background: var(--mid);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1px;
+    background: var(--border);
+  }
+  .product-card {
+    background: var(--black);
+    padding: 48px;
+    display: flex; flex-direction: column;
+    gap: 32px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+  }
+  .product-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: var(--white);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(.16,1,.3,1);
+  }
+  .product-card:hover { background: var(--gray); }
+  .product-card:hover::before { transform: scaleX(1); }
+  .product-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--white);
+    background: var(--border);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    display: inline-block;
+    width: fit-content;
+  }
+  .product-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .product-desc {
+    font-size: 14px;
+    color: var(--mid);
+    line-height: 1.7;
+    flex: 1;
+  }
+  .product-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .product-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+  .product-price span {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 2px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .product-arrow {
+    width: 44px; height: 44px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .product-card:hover .product-arrow {
+    background: var(--white);
+    color: var(--black);
+    border-color: var(--white);
+    transform: rotate(45deg);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+  .stat-item {
+    background: var(--black);
+    padding: 48px;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--mid);
+    letter-spacing: 1px;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: var(--mid);
+  }
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 1px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(.16,1,.3,1), transform 0.7s cubic-bezier(.16,1,.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .hero { padding: 0 24px 60px; }
+    .hero-sub { flex-direction: column; align-items: flex-start; gap: 32px; }
+    .section { padding: 80px 24px; }
+    .stats-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">MGNUM</a>
+  <div class="nav-links">
+    <a href="#products">Products</a>
+    <a href="#about">About</a>
+    <a href="login.html" class="nav-btn">Sign In</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <p class="hero-eyebrow">Est. 2024 — Premium Digital Goods</p>
+  <h1 class="hero-title">THE<br><span>EDGE</span><br>IS FREE.</h1>
+  <div class="hero-sub">
+    <p class="hero-desc">MGNUM delivers premium-grade tools with zero barriers. Access, acquire, and accelerate — no cost, no compromise.</p>
+    <div class="hero-cta">
+      <a href="#products" class="btn-primary">Browse Products</a>
+      <a href="register.html" class="btn-ghost">Create Account</a>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack">
+    <div class="marquee-item">PREMIUM RESELL</div>
+    <div class="marquee-item">ZERO COST</div>
+    <div class="marquee-item">LIFETIME ACCESS</div>
+    <div class="marquee-item">MGNUM VERIFIED</div>
+    <div class="marquee-item">INSTANT DELIVERY</div>
+    <div class="marquee-item">COMMUNITY DRIVEN</div>
+    <div class="marquee-item">PREMIUM RESELL</div>
+    <div class="marquee-item">ZERO COST</div>
+    <div class="marquee-item">LIFETIME ACCESS</div>
+    <div class="marquee-item">MGNUM VERIFIED</div>
+    <div class="marquee-item">INSTANT DELIVERY</div>
+    <div class="marquee-item">COMMUNITY DRIVEN</div>
+  </div>
+</div>
+
+<section class="section" id="products">
+  <p class="section-label reveal">Products</p>
+  <div class="products-grid">
+    <a href="product.html" class="product-card reveal">
+      <div class="product-tag">FREE — AVAILABLE NOW</div>
+      <div class="product-name">RS</div>
+      <p class="product-desc">The flagship MGNUM product. A carefully crafted suite built for those who demand precision. Lifetime access, zero barriers — yours to keep forever.</p>
+      <div class="product-footer">
+        <div class="product-price">FREE <span>/ LIFETIME</span></div>
+        <div class="product-arrow">→</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <p class="section-label reveal">By the numbers</p>
+  <div class="stats-row">
+    <div class="stat-item reveal">
+      <div class="stat-num">1K+</div>
+      <div class="stat-label">Active Members</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.1s">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Free Forever</div>
+    </div>
+    <div class="stat-item reveal" style="transition-delay:0.2s">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Lifetime Access</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">MGNUM</div>
+  <div class="footer-copy">© 2024 MGNUM. ALL RIGHTS RESERVED.</div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      ring.style.width = '60px'; ring.style.height = '60px';
+      ring.style.opacity = '0.5';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      ring.style.width = '36px'; ring.style.height = '36px';
+      ring.style.opacity = '1';
+    });
+  });
+
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
