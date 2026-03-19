@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — MGNUM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --white: #f5f5f0;
+    --gray: #1a1a1a;
+    --mid: #888;
+    --border: rgba(245,245,240,0.08);
+    --error: #ff4444;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    cursor: none;
+  }
+  #cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(245,245,240,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s, opacity 0.3s;
+  }
+
+  .split-left {
+    width: 45%;
+    background: var(--gray);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .split-left::before {
+    content: 'MGNUM';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 220px;
+    letter-spacing: -5px;
+    color: rgba(245,245,240,0.03);
+    bottom: -20px; left: -10px;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+  .brand-link {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .split-tagline {
+    position: relative;
+  }
+  .split-tagline h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 5vw, 72px);
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .split-tagline p {
+    color: var(--mid);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 280px;
+  }
+
+  .split-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+  }
+  .form-container {
+    width: 100%;
+    max-width: 400px;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to { opacity:1; transform:none; }
+  }
+
+  .form-header { margin-bottom: 48px; }
+  .form-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--mid);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+  .field input {
+    width: 100%;
+    background: var(--gray);
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    padding: 16px 18px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field input::placeholder { color: rgba(136,136,136,0.4); }
+  .field input:focus { border-color: rgba(245,245,240,0.3); }
+  .field input.error { border-color: var(--error); }
+
+  .error-msg {
+    display: none;
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+  .error-msg.visible { display: block; }
+
+  .global-error {
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.2);
+    color: var(--error);
+    padding: 14px 18px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .global-error.visible { display: block; }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--white);
+    color: var(--black);
+    border: none;
+    padding: 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.2s, transform 0.2s;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-submit:hover { background: #ddd; transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit .btn-loading {
+    display: none;
+    position: absolute; inset: 0;
+    background: var(--white);
+    align-items: center; justify-content: center;
+  }
+  .btn-submit.loading .btn-loading { display: flex; }
+  .loader {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: var(--black);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .form-footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--mid);
+  }
+  .form-footer a {
+    color: var(--white);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+  .form-footer a:hover { border-color: var(--white); }
+
+  @media (max-width: 768px) {
+    body { flex-direction: column; }
+    .split-left { width: 100%; padding: 32px 24px 40px; min-height: 200px; }
+    .split-left::before { font-size: 120px; }
+    .split-right { padding: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<div class="split-left">
+  <a href="index.html" class="brand-link">MGNUM</a>
+  <div class="split-tagline">
+    <h2>WELCOME<br>BACK.</h2>
+    <p>Sign in to access your dashboard and products.</p>
+  </div>
+</div>
+
+<div class="split-right">
+  <div class="form-container">
+    <div class="form-header">
+      <p class="form-label">Access Portal</p>
+      <h1 class="form-title">SIGN IN</h1>
+    </div>
+
+    <div class="global-error" id="globalError">INVALID USERNAME OR PASSWORD.</div>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="username">
+      <div class="error-msg" id="usernameError">USERNAME IS REQUIRED.</div>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+      <div class="error-msg" id="passwordError">PASSWORD IS REQUIRED.</div>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="handleLogin()">
+      <span>Sign In</span>
+      <span class="btn-loading"><span class="loader"></span></span>
+    </button>
+
+    <p class="form-footer">Don't have an account? <a href="register.html">Create one</a></p>
+  </div>
+</div>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+  });
+  function animRing() {
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button, input').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.style.width = '56px'; ring.style.height = '56px'; ring.style.opacity = '0.5'; });
+    el.addEventListener('mouseleave', () => { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.opacity = '1'; });
+  });
+
+  function handleLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const btn = document.getElementById('submitBtn');
+
+    document.getElementById('globalError').classList.remove('visible');
+    document.getElementById('usernameError').classList.remove('visible');
+    document.getElementById('passwordError').classList.remove('visible');
+    document.getElementById('username').classList.remove('error');
+    document.getElementById('password').classList.remove('error');
+
+    let valid = true;
+    if (!username) {
+      document.getElementById('usernameError').classList.add('visible');
+      document.getElementById('username').classList.add('error');
+      valid = false;
+    }
+    if (!password) {
+      document.getElementById('passwordError').classList.add('visible');
+      document.getElementById('password').classList.add('error');
+      valid = false;
+    }
+    if (!valid) return;
+
+    btn.classList.add('loading');
+
+    setTimeout(() => {
+      const users = JSON.parse(localStorage.getItem('mgnum_users') || '[]');
+      const user = users.find(u => u.username === username && u.password === password);
+      if (user) {
+        localStorage.setItem('mgnum_session', JSON.stringify({ username: user.username, email: user.email }));
+        window.location.href = 'product.html';
+      } else {
+        btn.classList.remove('loading');
+        document.getElementById('globalError').classList.add('visible');
+      }
+    }, 900);
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+
+  if (localStorage.getItem('mgnum_session')) window.location.href = 'product.html';
+</script>
+</body>
+</html>
